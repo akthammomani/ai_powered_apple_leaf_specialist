@@ -1,4 +1,4 @@
-# **AI Powered Apple Leaf Specialist**
+# **AI-Powered Apple Leaf Specialist**
 
 This project is a part of the Machine Learning Operations (AAI-540-02) course in [the Applied Artificial Intelligence Master Program](https://onlinedegrees.sandiego.edu/masters-applied-artificial-intelligence/) at [the University of San Diego (USD)](https://www.sandiego.edu/). 
 
@@ -11,7 +11,7 @@ AI-Powered Apple Leaf Specialist helps growers and hobbyists understand what’s
 * Model objective: classify an apple leaf photo into a small set of conditions and return a short action plan.
 * ML problem type: supervised multi-class image classification with an unsure path for low-confidence cases.
 
-## **Objectives##
+## **Objectives**
 
 * Provide a condition label and a confidence score for each uploaded photo.
 * Offer plain-language guidance for each condition, plus a prevention tip.
