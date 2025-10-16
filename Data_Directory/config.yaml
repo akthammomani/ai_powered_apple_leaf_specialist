@@ -1,0 +1,29 @@
+project_title: AI-Powered Apple Leaf Specialist
+seed: 1981
+img_size: 256
+labels:
+- healthy
+- scab
+- rust
+- black_rot
+- unknown
+paths:
+  norm_pv: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/data/normalized/plantvillage_apple
+  final_train: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/data/final/train
+  final_val: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/data/final/val
+  final_test: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/data/final/test
+  artifacts: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/artifacts
+  reports: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/reports
+  manifests: /content/drive/My Drive/Colab Notebooks/apple_leaf_specialist/manifests
+thresholds:
+  unknown: 0.55
+normalization:
+  mean:
+  - 0.4290312613174319
+  - 0.4645510057285428
+  - 0.4342525651976466
+  std:
+  - 0.19837632380203096
+  - 0.17246858275484248
+  - 0.21722875936723832
+  img_size: 256
