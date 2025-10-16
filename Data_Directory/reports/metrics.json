@@ -1,0 +1,54 @@
+{
+  "val": {
+    "accuracy": 0.9936842105263158,
+    "macro_f1": 0.9944307944307944,
+    "per_class": {
+      "healthy": {
+        "precision": 0.9879518072289156,
+        "recall": 1.0,
+        "f1": 0.9939393939393939
+      },
+      "scab": {
+        "precision": 1.0,
+        "recall": 0.9680851063829787,
+        "f1": 0.9837837837837838
+      },
+      "rust": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "black_rot": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  },
+  "test": {
+    "accuracy": 1.0,
+    "macro_f1": 1.0,
+    "per_class": {
+      "healthy": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "scab": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "rust": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "black_rot": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      }
+    }
+  }
+}

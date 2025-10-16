@@ -1,0 +1,5 @@
+label,train,val,test
+healthy,1146,246,246
+scab,882,94,95
+black_rot,870,93,93
+rust,576,42,41

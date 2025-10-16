@@ -1,0 +1,45 @@
+{
+  "splits": {
+    "train_n": 3474,
+    "val_n": 475,
+    "test_n": 475
+  },
+  "class_counts": {
+    "train": {
+      "healthy": 1146,
+      "scab": 882,
+      "black_rot": 870,
+      "rust": 576
+    },
+    "val": {
+      "healthy": 246,
+      "scab": 94,
+      "black_rot": 93,
+      "rust": 42
+    },
+    "test": {
+      "healthy": 246,
+      "scab": 95,
+      "black_rot": 93,
+      "rust": 41
+    }
+  },
+  "leakage": {
+    "train_val": 0,
+    "train_test": 0,
+    "val_test": 0
+  },
+  "normalization": {
+    "mean": [
+      0.429031,
+      0.464551,
+      0.434253
+    ],
+    "std": [
+      0.198376,
+      0.172469,
+      0.217229
+    ],
+    "img_size": 256
+  }
+}
