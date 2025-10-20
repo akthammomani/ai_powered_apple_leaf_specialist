@@ -1,7 +1,7 @@
 
 # **What this folder contains**
 
-Minimal, modular scripts to train, evaluate, and serve a classifier that detects common apple-leaf conditions:
+Minimal, modular scripts to **train**, **evaluate**, and **inference** serve a classifier that detects common apple-leaf conditions:
 
 * healthy
 * scab
