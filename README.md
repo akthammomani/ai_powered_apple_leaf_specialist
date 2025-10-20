@@ -66,6 +66,8 @@ This project uses the **[PlantVillage (Apple)](https://www.kaggle.com/datasets/e
 - **rust** (cedar apple rust)
 - **black_rot** (Botryosphaeria obtusa)
 
+![Image](https://github.com/user-attachments/assets/3e7b89d1-b21b-4efc-a2eb-261421059b95)
+
 **Why this dataset**
 - Consistent images (single leaf, plain backgrounds) make ingestion and training straightforward.
 - Labels map cleanly to a small, meaningful set of conditions.
@@ -109,11 +111,16 @@ This project uses the **[PlantVillage (Apple)](https://www.kaggle.com/datasets/e
 
 ## **Results**
 
+![Image](https://github.com/user-attachments/assets/bcc708b0-3d38-444b-840e-13567a8132f7)
+
 * Test accuracy ~0.989, macro-F1 ~0.986; strong per-class precision/recall.
 * Batch smoke test (n=20) shows high confidence, with unknown routing for low-confidence cases.
 * Clarify shows no major slice-wise disparity across brightness_bin; findings captured in the model card.
 * CloudWatch dashboard confirms low p90 latency and zero 5XX during dev runs.
-
+* Performance is consistently strong across classes; rust has slightly lower precision but perfect recall.
+* Results align with validation trends—no signs of overfitting.
+* Ready for packaging and deployment; consider targeted augmentation or threshold tuning if rust precision needs a bump.
+  
 ## **License**
 
 This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
