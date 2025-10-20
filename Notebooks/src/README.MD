@@ -9,6 +9,7 @@ Minimal, modular scripts to train, evaluate, and serve a classifier that detects
 * rust
 
 The scripts are framework-agnostic on purpose but assume a PyTorch image-classification workflow:  
+```pgsql
 src/
 ├── train.py        # Train a model and save checkpoints & metrics
 ├── evaluate.py     # Evaluate a trained checkpoint on a holdout set
