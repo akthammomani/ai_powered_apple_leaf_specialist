@@ -19,3 +19,15 @@ src/
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121  # or cpu wheels
 pip install numpy pandas scikit-learn pillow tqdm matplotlib pyyaml
 
+# Training — **`train.py`**
+
+Build and train a CNN/transformer backbone (ResNet50), apply standard augmentations, log metrics, and save the best checkpoint.
+
+# Training — **`evaluate.py`**
+
+Assess a saved checkpoint on a validation or test set, producing aggregate and per-class metrics.
+
+# Training — **`inference.py`**
+
+Run predictions on one or more images. Useful for smoke tests and integrating with apps.
+
