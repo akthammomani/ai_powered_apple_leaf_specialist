@@ -1,13 +1,24 @@
 
-# **Data Wrangling & Preprocessing**
+# **Data Wrangling, Preprocessing and EDA**
 
-In this notebook, we'll prepare the training data for AI-Powered Apple Leaf Specialist. The goal is to pull PlantVillage Apple dataset, harmonize their labels, clean and normalize the images, and produce final train, validation, and test splits where can used for modeling. Along the way we'll keep everything reproducible with a simple config.yaml and a tidy folder layout so it is easy to hand off to AWS later:
+**Using google colab**, we'll prepare the training data for AI-Powered Apple Leaf Specialist. The goal is to pull PlantVillage Apple dataset, harmonize their labels, clean and normalize the images, and produce final train, validation, and test splits where can used for modeling. Along the way we'll keep everything reproducible with a simple config.yaml and a tidy folder layout so it is easy to hand off to AWS later:
 
+**Data Wrangling:**
 * Pull sources: PlantVillage Apple.
 * Normalize labels into one shared set: healthy, scab, rust, black_rot, unknown:
 * Remove obvious duplicates, fix filenames, and standardize image sizes:
 * Write final splits (train, val and test) to disk and export CSV manifests for each split.
 * Data Augmentation (train only): To help the model generalize and avoid overfitting to the majority class, train data augmentation is applied.
+
+**Pre-processing & EDA:**
+* Load config + manifests from Drive
+* Summarize splits and class balance
+* Check for leakage/duplicates across splits
+* Inspect image sizes and show sample grids
+* Compute per-channel mean/std for normalization
+* Preview train augmentations (visual sanity check)
+* Save plots and a small EDA report under reports/
+* Update config.yaml with normalization stats
 
 # **Modeling**
 AI-Powered Apple Leaf Specialist is an end-to-end system that detects apple leaf diseases from images with production-grade reliability. The goal is to train a PyTorch classifier and validate it rigorously, and deploy it using Github and streamlit (Cloud) due to Amazon low budget.
