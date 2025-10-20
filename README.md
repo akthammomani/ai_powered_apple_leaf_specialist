@@ -30,7 +30,11 @@
   <!-- Results -->
   <img alt="Accuracy" src="https://img.shields.io/badge/Test%20accuracy-98.9%25-brightgreen">
   <img alt="Macro F1" src="https://img.shields.io/badge/Macro--F1-0.986-brightgreen">
+
+  <!-- Model -->
+  <img alt="ResNet-18" src="https://img.shields.io/badge/Model-ResNet-18-0069A1?logo=keras&logoColor=white">
 </p>
+
 
 
 # **AI-Powered Apple Leaf Specialist**
