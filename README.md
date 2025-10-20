@@ -32,7 +32,7 @@
   <img alt="Macro F1" src="https://img.shields.io/badge/Macro--F1-0.986-brightgreen">
 
   <!-- Model -->
-  <img alt="ResNet-18" src="https://img.shields.io/badge/Model-ResNet-18-0069A1?logo=keras&logoColor=white">
+  <img alt="ResNet-18" src="https://img.shields.io/badge/Model-ResNet%E2%80%9018-0069A1?logo=pytorch&logoColor=white">
 </p>
 
 
