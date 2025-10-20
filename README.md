@@ -79,7 +79,11 @@ This project uses the **[PlantVillage (Apple)](https://www.kaggle.com/datasets/e
 **How it's used here**
 - Serves as the **sole source** for the baseline model in this project.
 - Labels are aligned to a canonical set: `healthy, scab, rust, black_rot` (with an `unknown` route at inference time for low confidence).
-- Images are standardized to a fixed size and split **70/15/15** (train/val/
+- Images are standardized to a fixed size and split **70/15/15** (train/val/test)
+
+## **Solution Overview**
+
+![Image](https://github.com/user-attachments/assets/5b1ceb30-3d8f-4a7c-9dd0-e8e2f80bc70d)
 
 ## **Methods Used**
 
