@@ -1,3 +1,38 @@
+<p align="left">
+  <!-- Language / Core -->
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white">
+  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white">
+  <img alt="TorchVision" src="https://img.shields.io/badge/TorchVision-0.17%2B-orange">
+  <img alt="scikit-learn" src="https://img.shields.io/badge/scikit--learn-1.x-F7931E?logo=scikitlearn&logoColor=white">
+  <img alt="ONNX" src="https://img.shields.io/badge/ONNX-export-005CED?logo=onnx&logoColor=white">
+  <img alt="TorchScript" src="https://img.shields.io/badge/TorchScript-export-000000">
+
+  <!-- Data / Wrangling -->
+  <img alt="Google Colab" src="https://img.shields.io/badge/Google%20Colab-wrangling-FFC107?logo=googlecolab&logoColor=black">
+  <img alt="PlantVillage" src="https://img.shields.io/badge/Dataset-PlantVillage%20(Apple)-6DB33F">
+
+  <!-- AWS (dev/MLOps) -->
+  <img alt="SageMaker" src="https://img.shields.io/badge/AWS%20SageMaker-dev-232F3E?logo=amazonaws&logoColor=white">
+  <img alt="Model Registry" src="https://img.shields.io/badge/SageMaker-Model%20Registry-232F3E?logo=amazonaws&logoColor=white">
+  <img alt="Batch Transform" src="https://img.shields.io/badge/SageMaker-Batch%20Transform-232F3E?logo=amazonaws&logoColor=white">
+  <img alt="Clarify" src="https://img.shields.io/badge/SageMaker-Clarify%20Bias%20Report-5A3EC8">
+  <img alt="CloudWatch" src="https://img.shields.io/badge/AWS-CloudWatch%20Dashboards-5A3EC8?logo=amazonaws&logoColor=white">
+  <img alt="Amazon S3" src="https://img.shields.io/badge/Amazon%20S3-datasets%20%26%20reports-569A31?logo=amazons3&logoColor=white">
+
+  <!-- App -->
+  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-app-FF4B4B?logo=streamlit&logoColor=white">
+  <img alt="Camera or Upload" src="https://img.shields.io/badge/Input-camera%20or%20upload-444">
+
+  <!-- Model policy / classes -->
+  <img alt="Classes" src="https://img.shields.io/badge/Classes-healthy%7Cscab%7Crust%7Cblack__rot%7Cunknown-0E8A16">
+  <img alt="Threshold" src="https://img.shields.io/badge/Decision%20threshold-%CF%84%3D0.65-0366D6">
+
+  <!-- Results -->
+  <img alt="Accuracy" src="https://img.shields.io/badge/Test%20accuracy-98.9%25-brightgreen">
+  <img alt="Macro F1" src="https://img.shields.io/badge/Macro--F1-0.986-brightgreen">
+</p>
+
+
 # **AI-Powered Apple Leaf Specialist**
 
 This project is a part of the Machine Learning Operations (AAI-540-02) course in [the Applied Artificial Intelligence Master Program](https://onlinedegrees.sandiego.edu/masters-applied-artificial-intelligence/) at [the University of San Diego (USD)](https://www.sandiego.edu/). 
