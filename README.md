@@ -36,8 +36,7 @@
 </p>
 
 
-
-# **AI-Powered Apple Leaf Specialist**
+# **AI-Powered Apple Leaf Specialist** [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_red.svg)](https://ai-powered-apple-leaf-specialist.streamlit.app//)
 
 This project is a part of the Machine Learning Operations (AAI-540-02) course in [the Applied Artificial Intelligence Master Program](https://onlinedegrees.sandiego.edu/masters-applied-artificial-intelligence/) at [the University of San Diego (USD)](https://www.sandiego.edu/). 
 
