@@ -1,0 +1,9 @@
+# Core app
+streamlit>=1.36,<2
+numpy>=1.24,<2.1
+pandas>=2.1,<2.3
+Pillow>=10.2
+
+# PyTorch (CPU) + torchvision
+torch>=2.2,<2.4
+torchvision>=0.17,<0.19
