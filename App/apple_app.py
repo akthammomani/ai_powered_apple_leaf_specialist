@@ -1,81 +1,268 @@
 # app.py
 import json
 from pathlib import Path
-
-import numpy as np
-import pandas as pd
-from PIL import Image, ImageOps
-import streamlit as st
-import torch
-import torchvision.transforms as T
 import base64
 
+import numpy as np
+from PIL import Image, ImageOps
+import streamlit as st
+import streamlit.components.v1 as components
+import torch
+import torchvision.transforms as T
+
 # -------------------- Paths --------------------
-ART = Path("artifacts")
+ART = Path("Data_Directory/artifacts")
 TS_PATH   = ART / "model.torchscript.pt"
 CFG_PATH  = ART / "config_inference.json"
 LAB_PATH  = ART / "labels.json"
-TEMP_PATH = ART / "temperature.json"  
-
+TEMP_PATH = ART / "temperature.json"
 
 BANNER   = "header_banner.jpg"
-APP_LOGO = "logo 2.jpg"
+APP_LOGO = "logo 3.png"
 
-# -------------------- Page + light styling --------------------
+# -------------------- Defaults --------------------
+THRESHOLD     = 0.85
+dark_thr      = 0.25
+bright_thr    = 0.90
+PREVIEW_MAX_W = 420
+PREVIEW_MAX_H = 420
+
+# Camera leaf-gate defaults (used later)
+cov_min = 0.04
+tex_min = 25.0
+
+# -------------------- Page config (force sidebar open) --------------------
+st.markdown("""
+<style>
+div.block-container {
+  padding-top: 0.5rem !important;   
+}
+
+@media (min-width: 992px) {
+  div.block-container {
+    padding-top: 0.25rem !important;
+  }
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 st.set_page_config(
     page_title="AI-Powered Apple Leaf Specialist",
     page_icon=APP_LOGO if Path(APP_LOGO).exists() else "🍎",
     layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-# Card-like look for uploader and camera:
-st.markdown("""
+# -------------------- CSS --------------------
+st.markdown(
+    """
 <style>
-.section { margin-bottom: 1.25rem; }
-.section .title { font-size: 1.4rem; font-weight: 700; margin: 0 0 .25rem 0; color: #2c313f; }
-.section .sub   { color: #6b7280; margin: 0 0 .75rem 0; }
-div[data-testid="stFileUploader"] section[data-testid="stFileUploaderDropzone"]{
-  border: 1.5px solid #E6E9EF; background: #F6F8FB; border-radius: 12px; padding: 16px;
+:root{
+  --sb-w: 420px;
+  --sb-bg: #F3F4F6;
+  --card-bg: #F3F4F6;
+  --border: #E5E7EB;
+  --text: #111827;
+  --muted: #6B7280;
 }
-div[data-testid="stCameraInput"]{
-  border: 1.5px solid #E6E9EF; background: #F6F8FB; border-radius: 12px; padding: 12px;
-}
-</style>
-""", unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-/* Sidebar header block */
-.sidebar-header {
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
-  justify-content: center;
-  text-align: center;
-  gap: .4rem;
-  margin-bottom: 1rem;
+section[data-testid="stSidebar"]{
+  width: var(--sb-w) !important;
+  min-width: var(--sb-w) !important;
+  background: var(--sb-bg) !important;
 }
-.sidebar-header img {
-  width: 96px;              /* tweak size if you like */
-  height: auto;
-  border-radius: 12px;      /* optional rounded corners */
-  box-shadow: 0 2px 6px rgba(0,0,0,.08);
+section[data-testid="stSidebar"] > div{
+  width: var(--sb-w) !important;
+  background: var(--sb-bg) !important;
 }
-.sidebar-title {
-  font-weight: 700;
-  font-size: 1.0rem;
+
+section[data-testid="stSidebar"] .block-container{
+  padding-top: 1rem !important;
+  background: var(--sb-bg) !important;
+}
+
+button[data-testid="collapsedControl"]{ display:none !important; }
+section[data-testid="stSidebar"] div[data-testid="stSidebarNav"]{ display:none; }
+
+.sb-app-title{
+  font-size: 1.35rem;
+  font-weight: 850;
+  color: var(--text);
   line-height: 1.2;
-  color: #2c313f;
+  text-align: center;
+  margin: .35rem 0 .55rem 0;
+}
+.sb-divider{
+  height: 3px;
+  background: #D1D5DB;
+  border-radius: 999px;
+  margin: .4rem 0 1rem 0;
+}
+.sb-h1{
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 .35rem 0;
+}
+.sb-sub{
+  font-size: .86rem;
+  color: var(--muted);
+  margin: 0 0 .85rem 0;
+}
+
+/* section look */
+.sb-card{
+  border: 1.5px solid var(--border);
+  background: var(--card-bg) !important;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+.sb-sec-title{
+  font-size: .95rem;
+  font-weight: 750;
+  color: var(--text);
+  margin: 0 0 2px 0;
+}
+.sb-sec-sub{
+  font-size: .82rem;
+  color: var(--muted);
+  margin: 0 0 10px 0;
+}
+.sb-mini-sep{
+  height: 1px;
+  background: #E5E7EB;
+  margin: 10px 2px;
+}
+
+/* uploader dropzone */
+section[data-testid="stSidebar"] div[data-testid="stFileUploaderDropzone"]{
+  background: var(--card-bg) !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 12px !important;
+}
+
+/* Buttons */
+section[data-testid="stSidebar"] .stButton button{
+  border-radius: 8px !important;
+}
+
+/* Main area column cleanup */
+div[data-testid="column"] > div:first-child{
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 </style>
-""", unsafe_allow_html=True)
+""",
+    unsafe_allow_html=True
+)
+
+# -------------------- JS: remove pills + force sidebar open --------------------
+components.html(
+    """
+<script>
+(function () {
+  function isPill(el) {
+    if (!el || el.nodeType !== 1) return false;
+    const cs = window.getComputedStyle(el);
+    const rect = el.getBoundingClientRect();
+    const br = parseFloat(cs.borderRadius || "0");
+    const bw = parseFloat(cs.borderTopWidth || "0");
+    const hasBorder = bw >= 1 && (cs.borderStyle || "").includes("solid");
+    const h = rect.height;
+    const w = rect.width;
+    const sizeLike = (h >= 26 && h <= 52) && (w >= 180);
+    const roundLike = br >= 12;
+    const txt = (el.innerText || "").trim();
+    const emptyLike = txt.length === 0;
+    return sizeLike && roundLike && hasBorder && emptyLike;
+  }
+
+  function hidePills() {
+    const sidebar = window.parent.document.querySelector('section[data-testid="stSidebar"]');
+    if (!sidebar) return;
+    const candidates = sidebar.querySelectorAll("div, section, label");
+    candidates.forEach(el => {
+      if (isPill(el)) {
+        const container =
+          el.closest('div[data-testid="stElementContainer"]') ||
+          el.closest('div[data-testid="stVerticalBlock"]') ||
+          el;
+        container.style.display = "none";
+        container.style.height = "0px";
+        container.style.margin = "0";
+        container.style.padding = "0";
+        container.style.border = "0";
+        container.style.boxShadow = "none";
+      }
+    });
+  }
+
+  // --- Force sidebar to stay expanded ---
+  function forceSidebarOpen() {
+    const doc = window.parent.document;
+
+
+    const toggle =
+      doc.querySelector('button[aria-label="Toggle sidebar"]') ||
+      doc.querySelector('button[title="Toggle sidebar"]') ||
+      doc.querySelector('button[kind="header"]') ||  // fallback (some builds)
+      null;
+
+    if (!toggle) return;
+
+    // If it's collapsed, aria-expanded becomes "false"
+    const expanded = toggle.getAttribute("aria-expanded");
+    if (expanded === "false") {
+      toggle.click(); // reopen
+    }
+  }
+
+  function runAll(){
+    hidePills();
+    forceSidebarOpen();
+  }
+
+  runAll();
+
+  // Observe sidebar + header (because toggle lives in header in some builds)
+  const doc = window.parent.document;
+  const sidebar = doc.querySelector('section[data-testid="stSidebar"]');
+  const header = doc.querySelector('header');
+
+  const obs = new MutationObserver(() => runAll());
+  if (sidebar) obs.observe(sidebar, { childList: true, subtree: true });
+  if (header) obs.observe(header, { childList: true, subtree: true });
+
+  // retry for delayed hydration
+  let tries = 0;
+  const iv = setInterval(() => {
+    runAll();
+    tries++;
+    if (tries > 80) clearInterval(iv); // ~8s
+  }, 100);
+})();
+</script>
+""",
+    height=0,
+    width=0,
+)
 
 if Path(BANNER).exists():
-    st.image(BANNER, use_column_width=True)
-#st.title("AI-Powered Apple Leaf Specialist")
-#st.caption("Capture or upload one apple leaf photo. The model predicts healthy · scab · rust · black_rot, or routes to unknown at low confidence.")
+    st.image(BANNER, use_container_width=True)
 
-# -------------------- Utilities --------------------
+st.markdown("## Introduction")
+
+st.markdown("""
+The **AI-Powered Apple Leaf Specialist** is a lightweight, real-time computer vision application designed to help apple growers quickly identify common apple leaf conditions using a single photo. Using a fine-tuned ResNet-18 deep learning model with calibrated probability outputs, the system classifies leaf images into one of four conditions: **healthy, scab, rust, or black rot**. When the model confidence is low, the app conservatively routes the result to an **“unknown”** label to avoid overconfident misclassification.
+
+The app supports both image upload and live camera capture, applies deterministic preprocessing, and runs local TorchScript inference on CPU without requiring cloud connectivity. After prediction, the app displays class probabilities and provides **tailored care recommendations specific to the predicted disease**, helping users take the next best step (prevention, treatment, and best practices) based on the detected condition.
+""")
+
+st.markdown("---")
+
+# -------------------- Helpers --------------------
 def _load_json(p: Path, default):
     try:
         with open(p, "r") as f:
@@ -96,7 +283,6 @@ def load_model_only_ts():
     img_size = int(cfg["img_size"])
     mean, std = cfg["mean"], cfg["std"]
 
-    # Match training: resize -> center-crop -> tensor -> normalize
     pad = 32 if img_size >= 224 else int(img_size * 0.125)
     transform = T.Compose([
         T.Resize(img_size + pad),
@@ -121,14 +307,12 @@ def predict_probs(pil_img: Image.Image) -> np.ndarray:
         probs = torch.softmax(logits, dim=1).cpu().numpy()[0]
     return probs
 
-# -------------------- Quality checks --------------------
 def compute_brightness(pil_img: Image.Image) -> float:
     arr = np.asarray(pil_img.resize((256, 256))).astype(np.float32) / 255.0
     y = 0.2126*arr[:,:,0] + 0.7152*arr[:,:,1] + 0.0722*arr[:,:,2]
     return float(y.mean())
 
 def green_coverage_soft(pil_img: Image.Image) -> float:
-    # HSV band + RGB G-dominance union; tolerant to color casts
     hsv = np.array(pil_img.convert("HSV"))
     H, S, V = hsv[...,0], hsv[...,1], hsv[...,2]
     mask_hsv = (H >= 11) & (H <= 85) & (S >= 20) & (V >= 20)
@@ -161,51 +345,37 @@ def decide(probs: np.ndarray, labels, threshold: float):
     k = int(np.argmax(probs)); p = float(probs[k])
     return (labels[k], p, k) if p >= threshold else ("unknown", p, k)
 
-# -------------------- Care tips --------------------
-CARE = {
-    "healthy":[
-        "No action required; keep routine scouting weekly.",
-        "Light pruning to maintain airflow; remove dense water sprouts.",
-        "Irrigate at soil level; avoid wetting foliage late in the day.",
-        "Sanitation: rake and remove healthy leaf drop away from trunks."
-    ],
-    "scab":[
-        "Cull infected leaves/fruit; bag and trash (do not compost).",
-        "Sanitize pruners between cuts (70% alcohol or 10% bleach).",
-        "Apply a registered fungicide early-season or at first signs per local guidance.",
-        "Prevention: prune for airflow; remove leaf litter over winter."
-    ],
-    "rust":[
-        "Check nearby juniper/cedar (alternate host); prune galls if feasible.",
-        "Use protectant fungicide at tight cluster/pink where rust pressure is high.",
-        "Improve airflow (thin dense branches); remove heavily infected leaves.",
-        "Avoid overhead irrigation; keep mulch off the trunk flare."
-    ],
-    "black_rot":[
-        "Prune cankers 4–6 inches below visible margins; dispose of prunings.",
-        "Remove mummified fruit and infected spurs; sanitize tools.",
-        "If orchard had prior black rot pressure, run an early-season fungicide program.",
-        "Keep orchard floor clean; remove dead wood where fungus overwinters."
-    ],
-    "unknown":[
-        "Low confidence: retake in bright, even light; fill the frame with one leaf.",
-        "Wipe lens; hold phone steady; avoid backlight and deep shadows.",
-        "Capture both sides and the most symptomatic area.",
-        "If symptoms persist, contact your local extension agent with multiple photos."
-    ],
-}
-def render_care(label):
-    st.subheader("Care & Prevention")
-    for t in CARE.get(label, CARE["unknown"]):
-        st.write("• " + t)
-    st.caption("General guidance only. Follow local regulations and product labels for any chemical applications.")
+def _pretty(lab: str) -> str:
+    return lab.replace("_", " ").title()
 
-# -------------------- Session state (single-source input) --------------------
-if "show_camera" not in st.session_state:   st.session_state.show_camera = False
-if "source" not in st.session_state:        st.session_state.source = None  # 'camera'|'upload'
-if "captured" not in st.session_state:      st.session_state.captured = None
-if "upload" not in st.session_state:        st.session_state.upload = None
-if "keep_camera_on" not in st.session_state:st.session_state.keep_camera_on = False
+def render_prob_bars_native(prob_map: dict):
+    st.markdown("**Apple Disease Probability**")
+    order = ["black_rot", "healthy", "scab", "rust"]
+    for lab in order:
+        p = float(prob_map.get(lab, 0.0))
+        c1, c2, c3 = st.columns([1.6, 6, 1.2])
+        with c1: st.write(_pretty(lab))
+        with c2:
+            try:
+                st.progress(p)
+            except Exception:
+                st.progress(int(p * 100))
+        with c3: st.write(f"{p*100:.1f}%")
+
+# -------------------- Posters --------------------
+CARE_POSTERS = {
+    "black_rot": "black_rot_care_v2.jpg",
+    "healthy":   "healthy_care_v2.jpg",
+    "scab":      "scab_care_v2.jpg",
+    "rust":      "rust_care_v2.jpg",
+}
+
+# -------------------- Session state --------------------
+if "show_camera" not in st.session_state:     st.session_state.show_camera = False
+if "source" not in st.session_state:         st.session_state.source = None
+if "captured" not in st.session_state:       st.session_state.captured = None
+if "upload" not in st.session_state:         st.session_state.upload = None
+if "keep_camera_on" not in st.session_state: st.session_state.keep_camera_on = False
 
 def open_camera():
     st.session_state.show_camera = True
@@ -220,68 +390,76 @@ def on_upload_change():
     st.session_state.source = "upload"
     st.session_state.show_camera = False
 
-# -------------------- Sidebar controls --------------------
-def sidebar_logo(title:str, path:str):
-    if Path(path).exists():
-        b64 = base64.b64encode(Path(path).read_bytes()).decode()
-        ext = Path(path).suffix.lstrip(".").lower() or "png"
-        img_html = f'<img src="data:image/{ext};base64,{b64}" alt="logo" />'
-    else:
-        img_html = '<div style="font-size:48px">🍎</div>'
-    st.markdown(f'''
-        <div class="sidebar-header">
-            {img_html}
-            <div class="sidebar-title">{title}</div>
-        </div>
-    ''', unsafe_allow_html=True)
-
+# -------------------- Sidebar UI --------------------
 with st.sidebar:
-    sidebar_logo("AI-Powered Apple Leaf Specialist", APP_LOGO)
-    st.subheader("Settings")
-    THRESHOLD = st.slider("Decision threshold (τ)", 0.0, 0.99, 0.85, 0.01)
-    dark_thr   = st.slider("Too dark threshold", 0.05, 0.50, 0.25, 0.01)
-    bright_thr = st.slider("Too bright threshold", 0.50, 0.99, 0.90, 0.01)
-    cov_min = st.slider("Min green coverage (camera gate)", 0.00, 0.50, 0.04, 0.01)
-    tex_min = st.slider("Min texture score (camera gate)", 0.0, 300.0, 25.0, 1.0)
-    st.checkbox("Keep camera open after capture", value=st.session_state.keep_camera_on, key="keep_camera_on")
-    st.caption(f"Engine: TorchScript · Temperature: {TEMPERATURE:.2f} · Image size: {IMG_SIZE}")
-    st.markdown("**Classes**: " + " · ".join(labels))
+    if Path(APP_LOGO).exists():
+        b64 = base64.b64encode(Path(APP_LOGO).read_bytes()).decode()
+        ext = Path(APP_LOGO).suffix.lstrip(".").lower() or "png"
+        st.markdown(
+            f"""
+            <div style="display:flex;justify-content:center;margin-top:-2rem;">
+              <img src="data:image/{ext};base64,{b64}" style="max-width:220px;height:auto;" />
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.markdown('<div style="text-align:center;font-size:52px">🍎</div>', unsafe_allow_html=True)
 
-# -------------------- Inputs (cards, side-by-side) --------------------
-st.subheader("Add a leaf photo")
-left, right = st.columns([1,1], gap="large")
+    st.markdown('<div class="sb-app-title">AI-Powered Apple Leaf Specialist</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sb-divider"></div>', unsafe_allow_html=True)
 
-with left:
-    st.markdown('<div class="section"><div class="title">Upload Photo</div>'
-                '<div class="sub">Drop a JPG/PNG here, or browse</div>', unsafe_allow_html=True)
-    st.file_uploader(label="", type=["jpg","jpeg","png"], key="uploader", on_change=on_upload_change)
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown('<div class="sb-h1">Add a leaf photo</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sb-sub">Upload a file or take a photo using your camera.</div>', unsafe_allow_html=True)
 
-with right:
-    st.markdown('<div class="section"><div class="title">Record Photo</div>'
-                '<div class="sub">Use your device camera</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sb-card">', unsafe_allow_html=True)
+    st.markdown('<div class="sb-sec-title">Upload Photo</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sb-sec-sub">Drop a JPG/PNG here, or browse</div>', unsafe_allow_html=True)
+    st.file_uploader("", type=["jpg", "jpeg", "png"], key="uploader", on_change=on_upload_change)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sb-mini-sep"></div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="sb-card">', unsafe_allow_html=True)
+    st.markdown('<div class="sb-sec-title">Record Photo</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sb-sec-sub">Use your device camera</div>', unsafe_allow_html=True)
+
     if not st.session_state.show_camera:
-        st.button("Open camera", on_click=open_camera)
-        cap = None
+        c_hint, c_btn = st.columns([6, 4], vertical_alignment="center")
+        with c_hint:
+            st.caption('Tap "Open camera" to take a photo.')
+        with c_btn:
+            if st.button("Open camera", key="open_cam_btn"):
+                open_camera()
     else:
         cap = st.camera_input("", key="camera_input")
-        if st.button("Close camera"): close_camera()
         if cap is not None:
             st.session_state.captured = cap
             st.session_state.source = "camera"
             if not st.session_state.keep_camera_on:
-                close_camera()
-    st.markdown("</div>", unsafe_allow_html=True)
+                st.session_state.show_camera = False
+        st.button("Close camera", on_click=close_camera, key="close_cam_btn")
 
-# Select active source strictly
+    #st.markdown('</div>', unsafe_allow_html=True)
+
+    st.write("---")
+    st.write("""
+    ### Contacts
+    [![](https://img.shields.io/badge/GitHub-Follow-informational)](https://github.com/akthammomani)
+    [![](https://img.shields.io/badge/Linkedin-Connect-informational)](https://www.linkedin.com/in/akthammomani/)
+    [![](https://img.shields.io/badge/Open-Issue-informational)](https://github.com/akthammomani/ai_powered_apple_leaf_specialist/issues)
+    ###### © Aktham Momani, 2025. All rights reserved.
+    """)
+
+# -------------------- Active source --------------------
 file = st.session_state.captured if st.session_state.source == "camera" else (
-       st.session_state.upload if st.session_state.source == "upload" else None)
+    st.session_state.upload if st.session_state.source == "upload" else None
+)
 
 # -------------------- Main inference path --------------------
 if file:
     pil = load_pil(file)
 
-    # Brightness check for both sources
     b = compute_brightness(pil)
     if b < dark_thr:
         st.warning(f"Image appears too dark (brightness {b:.2f}). Retake under brighter, even lighting.")
@@ -290,7 +468,6 @@ if file:
         st.warning(f"Image appears too bright/washed-out (brightness {b:.2f}). Retake avoiding direct glare.")
         st.stop()
 
-    # Leaf-likeness gate ONLY for camera
     if st.session_state.source == "camera":
         bypass_gate = st.checkbox("Bypass leaf check for this camera image", value=False)
         ok_leaf, cov, tex = is_leaf_like(pil, cov_min=cov_min, cov_max=0.98, tex_min=tex_min)
@@ -301,22 +478,36 @@ if file:
             )
             st.stop()
 
-    c1, c2 = st.columns([1,1])
-    with c1:
-        st.image(pil, caption="Input", use_column_width=True)
-
     probs = predict_probs(pil)
     pred_label, pred_conf, _ = decide(probs, labels, THRESHOLD)
+    prob_map = {lab: float(probs[i]) for i, lab in enumerate(labels)}
 
-    order = np.argsort(probs)[::-1]
-    df = pd.DataFrame([(labels[i], float(probs[i])) for i in order[:4]],
-                      columns=["label","probability"])
+    r1_left, med, r1_right = st.columns([0.5, 0.5, 1], gap="large")
+    with r1_left:
+        st.markdown("### Your Image:")
+        st.image(ImageOps.contain(pil, (PREVIEW_MAX_W, PREVIEW_MAX_H)), use_container_width=False)
 
-    with c2:
-        st.metric("Decision", pred_label, delta=f"{pred_conf:.3f}")
-        st.dataframe(df.style.format({"probability":"{:.3f}"}), use_container_width=True)
+    with med:
+        st.markdown("### Learn More")
+        st.markdown("[![](https://img.shields.io/badge/GitHub%20-AI--Powered%20Apple%20Leaf%20Specialist-informational)](https://github.com/akthammomani/ai_powered_apple_leaf_specialist)")
 
-    render_care(pred_label)
-    st.caption("Calibrated ResNet-18 (TorchScript). Low-confidence predictions route to ‘unknown’.")
+    with r1_right:
+        st.markdown("### Predicted Apple Disease Label is:")
+        st.markdown(f"**{_pretty(pred_label)}** with **{pred_conf*100:.0f}%** Confidence")
+        render_prob_bars_native(prob_map)
+        st.write("#### Learn More")
+        st.markdown("[![](https://img.shields.io/badge/GitHub-Model%20Notebook-informational)](https://github.com/akthammomani/ai_powered_apple_leaf_specialist/blob/main/Notebooks/Modeling_AI_Powered_Apple_Leaf_Specialist.ipynb)")
+
+
+    st.markdown(f"### Apple – {_pretty(pred_label)} Care Recommendations:")
+    poster_path = CARE_POSTERS.get(pred_label, CARE_POSTERS["healthy"])
+    if not Path(poster_path).exists():
+        st.info("Care poster not found. Please add the JPGs next to app.py.")
+    else:
+        st.image(poster_path, use_container_width=True)
+        st.write("""
+        ###### ***Disclaimer***
+        *This app is not a substitute for professional agricultural advice, diagnosis, or treatment. Field conditions, pests, and diseases can vary widely. Always consult a qualified agronomist, crop advisor, or local extension service before making decisions that could affect tree health, spray plans, or harvest.*
+        """)
 else:
-    st.info("Upload a photo or open the camera to begin.")
+    st.info("Use the sidebar to upload a photo or open the camera to begin.")
